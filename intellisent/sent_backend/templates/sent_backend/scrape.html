@@ -1,0 +1,26 @@
+{% extends 'sent_backend/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+            <div class="container-fluid">
+                <div class ="row">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Scrape Tool</h4>
+                                <p class="card-text">Enter some queries and start scraping!</p>
+                                <form action="/backend/data/scrape" method="post">
+                                    {% csrf_token %}
+                                    {{ form }}
+                                    <input type="submit" value="Submit" />
+                                    </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- End Container fluid  -->
+
+            {% endblock %}

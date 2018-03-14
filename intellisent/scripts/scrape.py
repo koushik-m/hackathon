@@ -1,18 +1,12 @@
-from scripts import scrape
-import asyncio
 from Twper import Query
+import asyncio
+import pandas as pd
+import sys
+from sent_backend.models import Tweet
+import threading
 
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
-
-from .forms import ScrapeForm
-
-
-def index(request):
-    return render(request, 'sent_backend/index.html')
-
-def scrape_tweets(request):
-    async def main(QUERY, N):
+def make_query(QUERY, N):
+    async def main():
         loop = asyncio.new_event_loop()
         q = Query(QUERY, limit=N)
         def async_tweets():
@@ -32,19 +26,8 @@ def scrape_tweets(request):
                              tweet_class=99)
                     t.save()
         future = loop.run_in_executor(None, async_tweets)
-#       response = await future
-    if request.method == 'POST':
-        form = ScrapeForm(request.POST)
-        if form.is_valid():
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(main(request.POST.get('query'), int(request.POST.get('num'))))
-            loop.close()
-            return HttpResponseRedirect('/backend/')
-    else:
-        form = ScrapeForm()
-    return render(request, 'sent_backend/scrape.html', {'form': form})
-
-def classify_tweets(request):
-    return render(request, 'sent_backend/classify.html')
-
+        response = await future
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
+    loop.close()
