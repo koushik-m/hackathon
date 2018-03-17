@@ -1,5 +1,7 @@
 from scripts import scrape
 import asyncio
+import pytz
+
 from Twper import Query
 
 from django.shortcuts import render
@@ -12,41 +14,6 @@ from sent_backend.models import Tweet
 
 def index(request):
     return render(request, 'sent_backend/index.html')
-
-#def scrape_tweets(request):
-    #async def main(QUERY, N):
-        #loop = asyncio.new_event_loop()
-        #q = Query(QUERY, limit=N)
-        #def async_tweets():
-            #tweets = q.get_tweets()
-            #for tw in tweets:
-                #if not Tweet.objects.filter(tweet_id=tw.tweet_id).exists():
-                    #clean_tags = ' '.join(tw.hashtags)
-                    #t = Tweet(user=tw.user,
-                             #fullname=tw.fullname,
-                             #tweet_id=tw.tweet_id,
-                             #url=tw.url,
-                             #timestamp=tw.timestamp,
-                             #text=tw.text,
-                             #replies=tw.replies,
-                             #retweets=tw.retweets,
-                             #likes=tw.likes,
-                             #hashtags=clean_tags,
-                             #tweet_class=99)
-                    #t.save()
-        #future = loop.run_in_executor(None, async_tweets)
-##       response = await future
-    #if request.method == 'POST':
-        #form = ScrapeForm(request.POST)
-        #if form.is_valid():
-            #loop = asyncio.new_event_loop()
-            #asyncio.set_event_loop(loop)
-            #loop.run_until_complete(main(request.POST.get('query'), int(request.POST.get('num'))))
-            #loop.close()
-            #return HttpResponseRedirect('/backend/')
-    #else:
-        #form = ScrapeForm()
-    #return render(request, 'sent_backend/scrape.html', {'form': form})
 
 def scrape_tweets(request):
     if request.method == 'POST':
@@ -65,13 +32,14 @@ def scrape_tweets(request):
                              fullname=tw.fullname,
                              tweet_id=tw.tweet_id,
                              url=tw.url,
-                             timestamp=tw.timestamp,
+                             timestamp=pytz.timezone('UTC').localize(tw.timestamp),
                              text=tw.text,
                              replies=tw.replies,
                              retweets=tw.retweets,
                              likes=tw.likes,
                              hashtags=clean_tags,
-                             tweet_class=99)
+                             tweet_class=99,
+                             query=request.POST.get('query'))
                 t.save()
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)

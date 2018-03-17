@@ -14,6 +14,7 @@ class Tweet(models.Model):
     likes = models.IntegerField()
     hashtags = models.CharField(max_length=200)
     tweet_class = models.IntegerField(null=True, default=None)
+    query = models.CharField(max_length=50, default=None)
 
     def __str__(self):
         return self.user + ": " + self.text
