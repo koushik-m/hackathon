@@ -1,0 +1,53 @@
+from scripts import scrape
+import asyncio
+from Twper import Query
+
+from django.shortcuts import render
+from django.http import HttpResponseRedirect
+
+from .forms import ScrapeForm
+
+
+def index(request):
+    return render(request, 'sent_backend/index.html')
+
+def scrape_tweets(request):
+    async def main(QUERY, N):
+        print("i ran")
+        loop = asyncio.new_event_loop()
+        q = Query(QUERY, limit=N)
+        def async_tweets():
+            tweets = q.get_tweets()
+            for tw in tweets:
+                print("the number of tweets i got is", len(tweets))
+                if not Tweet.objects.filter(tweet_id=tw.tweet_id).exists():
+                    clean_tags = ' '.join(tw.hashtags)
+                    t = Tweet(user=tw.user,
+                             fullname=tw.fullname,
+                             tweet_id=tw.tweet_id,
+                             url=tw.url,
+                             timestamp=tw.timestamp,
+                             text=tw.text,
+                             replies=tw.replies,
+                             retweets=tw.retweets,
+                             likes=tw.likes,
+                             hashtags=clean_tags,
+                             tweet_class=99)
+                    t.save()
+        future = loop.run_in_executor(None, async_tweets)
+#       response = await future
+    if request.method == 'POST':
+        form = ScrapeForm(request.POST)
+        if form.is_valid():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(main(request.POST.get('query'), int(request.POST.get('num'))))
+            loop.close()
+            return HttpResponseRedirect('/backend/')
+    else:
+        form = ScrapeForm()
+    return render(request, 'sent_backend/scrape.html', {'form': form})
+
+def classify_tweets(request):
+    return render(request, 'sent_backend/classify.html')
+
