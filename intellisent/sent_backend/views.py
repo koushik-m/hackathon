@@ -1,11 +1,12 @@
 from scripts import scrape
 import asyncio
 import pytz
+from random import randint
 
 from Twper import Query
 
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 
 from .forms import ScrapeForm
 from threading import Thread
@@ -57,4 +58,24 @@ def scrape_tweets(request):
     return render(request, 'sent_backend/scrape.html', {'form': form})
 
 def classify_tweets(request):
-    return render(request, 'sent_backend/classify.html')
+    if request.GET.get('id') and request.GET.get('class'):
+        t = Tweet.objects.filter(tweet_id=request.GET.get('id')).first()
+        tweet_class = request.GET.get('class')
+
+        if tweet_class == 'negative':
+            t.tweet_class = -1
+        elif tweet_class == 'neutral':
+            t.tweet_class = 0
+        elif tweet_class == 'positive':
+            t.tweet_class = 1
+        elif tweet_class == 'junk':
+            t.tweet_class = 2
+        elif tweet_class == 'discard':
+            t.tweet_class = 3
+
+        t.save()
+
+    unclassified = Tweet.objects.filter(tweet_class=99)
+    u = unclassified[randint(0, len(unclassified)-1)]
+    context = {'tweet': u}
+    return render(request, 'sent_backend/classify.html', context)
