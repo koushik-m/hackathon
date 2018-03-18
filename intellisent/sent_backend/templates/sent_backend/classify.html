@@ -2,9 +2,23 @@
 {% extends 'sent_backend/base.html' %}
 {% load staticfiles %}
 
+{% block title %}Classify{% endblock %}
+
 {% block content %}
 
 <div class="container-fluid">
+    <div class ="row">
+        <div class="col-lg-8">
+            <div class = "card">
+            <h4 class="card-title">Classification Rules</h4>
+            <h6 class="card-subtitle">Follow these <code>guidelines</code> to classify the given tweet.</h6>
+            <ul class="list-icons">
+                <li><i class="ti-angle-right"></i><code>Neutral</code> - opinion of the user is balanced or not expressed</li>
+                <li><i class="ti-angle-right"></i><code>Junk</code> - related to the show but no opinion is expressed</li>
+            </ul>
+            </div>
+        </div>
+    </div>
     <div class ="row">
         <div class ="col-lg-8">
             <div class="card">
@@ -14,8 +28,8 @@
 											      <a href="#"><img alt="..." src="/static/images/twitter-avatar.png" class="media-object"></a>
 										        </div>
 										        <div class="media-body">
-											          <h4 class="media-heading">{{ tweet.user }} / {{ tweet.fullname }}</h4>
-											          <p>{{ tweet.text }}</p>
+											          <a href="https://www.twitter.com{{ tweet.url }}" target="_blank"><h4 class="media-heading">{{ tweet.user }} / {{ tweet.fullname }} <i style="margin-left:5px;">on <b>{{ tweet.query }}</b></i></h4></a>
+											          <p>{{ tweet.text }}</p> 
 											          <p class="comment-date">{{ tweet.timestamp }}</p>
 										            </div>
 									  </div>
@@ -25,12 +39,21 @@
                         <a href="?id={{ tweet.tweet_id }}&class=neutral"><button type="button" class="btn btn-dark btn-outline btn-rounded">Neutral</button></a>
                         <a href="?id={{ tweet.tweet_id }}&class=positive"><button type="button" class="btn btn-primary btn-success">Positive</button></a>
                         <a href="?id={{ tweet.tweet_id }}&class=junk"><button type="button" class="btn btn-primary">Junk</button></a>
-                        <a href="?id={{ tweet.tweet_id }}&class=discard"><button type="button" class="btn btn-dark">Discard</button></a>
                         </div>
                         </div>
             </div>
         </div>
+        </div>
+        <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">{{ msg1 }}</h4>
+                <div class="progress m-t-20">
+                    <div class="progress-bar bg-info progress-bar-striped" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ percent }}%; height:10px;" role="progressbar"> <span class="sr-only">85% Complete (success)</span> </div>
+                    </div>
+                    </div>
+                    </div>
+                    </div>
     </div>
-</div>
 
 {% endblock %}

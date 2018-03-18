@@ -5,7 +5,7 @@ from random import randint
 
 from Twper import Query
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 
 from .forms import ScrapeForm
@@ -70,12 +70,16 @@ def classify_tweets(request):
             t.tweet_class = 1
         elif tweet_class == 'junk':
             t.tweet_class = 2
-        elif tweet_class == 'discard':
-            t.tweet_class = 3
 
         t.save()
-
+    
     unclassified = Tweet.objects.filter(tweet_class=99)
-    u = unclassified[randint(0, len(unclassified)-1)]
-    context = {'tweet': u}
+    unclassified_num = len(unclassified)-1
+    total_count = Tweet.objects.count()
+    msg1 = str(unclassified_num) + " left, " + str(total_count) + " total"
+    percent = (total_count - unclassified_num)/total_count*100
+    if unclassified_num + 1 == 0:
+        return redirect('/backend')
+    u = unclassified[randint(0, unclassified_num)]
+    context = {'tweet': u, 'msg1': msg1, 'percent': percent}
     return render(request, 'sent_backend/classify.html', context)
