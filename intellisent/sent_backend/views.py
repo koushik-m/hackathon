@@ -18,10 +18,11 @@ def index(request):
 
 def scrape_tweets(request):
     if request.method == 'POST':
+#       @asyncio.coroutine
         async def main():
             num = int(request.POST.get('num'))
             if num == 1:
-                limit = 500
+                limit = 10
             elif num == 2:
                 limit = 2000
             elif num == 3:
@@ -72,7 +73,7 @@ def classify_tweets(request):
             t.tweet_class = 2
 
         t.save()
-    
+
     unclassified = Tweet.objects.filter(tweet_class=99)
     unclassified_num = len(unclassified)-1
     total_count = Tweet.objects.count()
